@@ -1,0 +1,620 @@
+body {
+    background-image: url('back2.jpg');
+    background-size: cover; /* Cover the entire page */
+    background-position: center; /* Center the image */
+    background-attachment: fixed; /* Fixed while scrolling */
+    background-repeat: no-repeat;
+    min-height: 100vh; /* Ensure it covers full viewport height */
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); 
+    z-index: -1; 
+}
+
+#sudoku-board, .controls {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+}
+#sudoku-board {
+    display: grid;
+    grid-template-columns: repeat(9, 50px);
+    grid-gap: 2px;
+    width: max-content;
+    background-color: #333;
+    padding: 5px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 20px rgba(255,255,255,0.2);
+}
+
+/* Solved board style */
+#sudoku-board.solved-board {
+  background-color: rgba(40, 167, 69, 0.2); 
+  box-shadow: 0 0 20px rgba(40, 167, 69, 0.3);
+  border: 2px solid #28a745;
+}
+
+/* Cell success state */
+#sudoku-board.solved-board .cell {
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+/* Success state styles */
+#sudoku-board.solved {
+    background: rgba(46, 204, 113, 0.15);
+    box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.3);
+    transition: all 0.5s ease;
+    animation: pulse 2s infinite;
+}
+
+.cell.success {
+    background: rgba(46, 204, 113, 0.2);
+    animation: bounce 0.5s ease;
+}
+
+/* Animations */
+@keyframes pulse {
+  0% { 
+    box-shadow: 0 0 0 6px rgba(46, 204, 113, 0.4);
+    background-color: rgba(46, 204, 113, 0.15);
+  }
+  25% {
+    box-shadow: 0 0 0 12px rgba(100, 210, 255, 0.3);
+    background-color: rgba(100, 210, 255, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 0 18px rgba(255, 200, 46, 0.2);
+    background-color: rgba(255, 200, 46, 0.05);
+  }
+  75% {
+    box-shadow: 0 0 0 12px rgba(220, 38, 255, 0.3);
+    background-color: rgba(220, 38, 255, 0.1);
+  }
+  100% { 
+    box-shadow: 0 0 0 6px rgba(46, 204, 113, 0.4);
+    background-color: rgba(46, 204, 113, 0.15);
+  }
+}
+
+
+@keyframes bounce {
+
+  20% {
+    transform: scale(1.15) rotate(2deg);
+    background-color: rgb(193, 255, 193);
+  }
+  40% {
+    transform: scale(0.95) rotate(-1deg);
+    background-color: rgba(140, 255, 136, 0.4);
+  }
+  60% {
+    transform: scale(1.1) rotate(1deg);
+    background-color: rgba(95, 255, 63, 0.3);
+  }
+  80% {
+    transform: scale(1.05) rotate(-0.5deg);
+    background-color: rgba(0, 255, 13, 0.25);
+  }
+}
+
+
+/* Confetti effect*/
+canvas.confetti {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 50px;
+    border: 1px solid #555;
+    cursor: pointer;
+    background-color: #222;
+    transition: background-color 0.3s, transform 0.2s;
+    user-select: none;
+}
+
+/* New styles for 3x3 thicker borders */
+.cell.border-right {
+    border-right: 3px solid #999;
+}
+.cell.border-bottom {
+    border-bottom: 3px solid #999;
+}
+
+.cell.given {
+    background-color: #555;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+.cell.selected {
+    background-color: #007bff;
+    color: white;
+    transform: scale(1.1);
+}
+
+.cell.error {
+    background-color: #dc3545;
+}
+
+.cell.success {
+    background-color: #28a745;
+}
+
+.modal-body button {
+    margin: 5px;
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    border-radius: 50%;
+}
+
+#message {
+    font-size: 1.25rem;
+}
+
+
+#number-popup {
+    position: absolute;
+    display: none;
+    background: #222;
+    border: 2px solid #555;
+    border-radius: 10px;
+    padding: 10px;
+    z-index: 999;
+    box-shadow: 0 0 10px rgba(255,255,255,0.3);
+}
+
+#number-popup .num-btn {
+    width: 50px;
+    height: 50px;
+    margin: 5px;
+    font-size: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    line-height: 50px;
+    background: #333;
+    color: white;
+    cursor: pointer;
+    border: 1px solid #777;
+    transition: background-color 0.3s;
+}
+
+
+
+.clear-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background-color: transparent;
+  color: #dc3545;
+  border: 2px solid #dc3545;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-btn:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+  transform: translateY(-1px);
+}
+
+.clear-btn:active {
+  background-color: rgba(220, 53, 69, 0.2);
+  transform: translateY(0);
+}
+
+.clear-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+
+
+/* menu items -- from : https://uiverse.io/Admin12121/soft-falcon-79 ---------------------------------------------------------------------------------------------- */
+/* From Uiverse.io by Admin12121 */ 
+
+/* Menu container */
+.menu {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    background: rgba(60, 59, 65, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 50px;
+    padding: 8px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    gap: 5px;
+  }
+  
+  
+  /* Menu links */
+  .menu .link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #ffffff;
+    padding: 8px 12px;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+  }
+  
+  /* Menu icons */
+  .menu .link-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .menu .link-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* Menu titles */
+  .menu .link-title {
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  
+
+  
+  .link {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 70px;
+    height: 50px;
+    border-radius: 8px;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    transform-origin: center left;
+    transition: width 0.2s ease-in;
+    text-decoration: none;
+    color: inherit;
+    &:before {
+      position: absolute;
+      z-index: -1;
+      content: "";
+      display: block;
+      border-radius: 8px;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      transform: translateX(100%);
+      transition: transform 0.2s ease-in;
+      transform-origin: center right;
+      background-color: #555555;
+    }
+  
+    &:hover,
+    &:focus {
+      outline: 0;
+      width: 130px;
+  
+      &:before,
+      .link-title {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  }
+  
+  .link-icon {
+    width: 28px;
+    height: 28px;
+    display: block;
+    flex-shrink: 0;
+    left: 18px;
+    position: absolute;
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
+  
+  .link-title {
+    transform: translateX(100%);
+    transition: transform 0.2s ease-in;
+    transform-origin: center right;
+    display: block;
+    text-align: center;
+    text-indent: 28px;
+    width: 100%;
+  }
+  
+
+
+  /* GitHub corner ribbon */
+.github-corner:hover .octo-arm {
+  animation: octocat-wave 560ms ease-in-out;
+}
+
+@keyframes octocat-wave {
+  0%, 100% { transform: rotate(0); }
+  20%, 60% { transform: rotate(-25deg); }
+  40%, 80% { transform: rotate(10deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .github-corner svg {
+      width: 60px;
+      height: 60px;
+  }
+  
+
+}
+
+
+
+#welcome-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #6e5494 0%, #24292e 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 5s ease;
+}
+/* 
+#welcome-screen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+} */
+
+.welcome-content {
+  text-align: center;
+  transform: scale(0.9);
+  animation: welcomeScaleIn 1s ease forwards;
+}
+
+.welcome-title {
+  font-size: 3.5rem;
+  color: white;
+  margin-bottom: 2rem;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  background: linear-gradient(to right, #ff8a00, #e52e71);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradientShift 5s ease infinite;
+}
+
+.welcome-subtitle {
+  color: rgba(255,255,255,0.8);
+  font-size: 1.2rem;
+  margin-top: 2rem;
+}
+
+.sudoku-grid-animation {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  margin: 0 auto;
+}
+
+.grid-row {
+  display: flex;
+}
+
+.grid-cell {
+  width: 60px;
+  height: 60px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.animating-number {
+  position: absolute;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: white;
+  opacity: 0;
+  animation: numberPopIn 0.6s ease forwards;
+}
+
+@keyframes welcomeScaleIn {
+  to { transform: scale(1); }
+}
+
+@keyframes numberPopIn {
+  0% { 
+    transform: scale(0) rotate(-90deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% { 
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+
+
+/* Welcome screen Loader : *//* From Uiverse.io by ZacharyCrespin */ 
+@keyframes square-animation {
+  0% {
+   left: 0;
+   top: 0;
+  }
+ 
+  10.5% {
+   left: 0;
+   top: 0;
+  }
+ 
+  12.5% {
+   left: 32px;
+   top: 0;
+  }
+ 
+  23% {
+   left: 32px;
+   top: 0;
+  }
+ 
+  25% {
+   left: 64px;
+   top: 0;
+  }
+ 
+  35.5% {
+   left: 64px;
+   top: 0;
+  }
+ 
+  37.5% {
+   left: 64px;
+   top: 32px;
+  }
+ 
+  48% {
+   left: 64px;
+   top: 32px;
+  }
+ 
+  50% {
+   left: 32px;
+   top: 32px;
+  }
+ 
+  60.5% {
+   left: 32px;
+   top: 32px;
+  }
+ 
+  62.5% {
+   left: 32px;
+   top: 64px;
+  }
+ 
+  73% {
+   left: 32px;
+   top: 64px;
+  }
+ 
+  75% {
+   left: 0;
+   top: 64px;
+  }
+ 
+  85.5% {
+   left: 0;
+   top: 64px;
+  }
+ 
+  87.5% {
+   left: 0;
+   top: 32px;
+  }
+ 
+  98% {
+   left: 0;
+   top: 32px;
+  }
+ 
+  100% {
+   left: 0;
+   top: 0;
+  }
+ }
+ 
+ .loader {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  transform: rotate(45deg);
+ }
+ 
+ .loader-square {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 28px;
+  margin: 2px;
+  border-radius: 0px;
+  background: white;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  animation: square-animation 10s ease-in-out infinite both;
+ }
+ 
+ .loader-square:nth-of-type(0) {
+  animation-delay: 0s;
+ }
+ 
+ .loader-square:nth-of-type(1) {
+  animation-delay: -1.4285714286s;
+ }
+ 
+ .loader-square:nth-of-type(2) {
+  animation-delay: -2.8571428571s;
+ }
+ 
+ .loader-square:nth-of-type(3) {
+  animation-delay: -4.2857142857s;
+ }
+ 
+ .loader-square:nth-of-type(4) {
+  animation-delay: -5.7142857143s;
+ }
+ 
+ .loader-square:nth-of-type(5) {
+  animation-delay: -7.1428571429s;
+ }
+ 
+ .loader-square:nth-of-type(6) {
+  animation-delay: -8.5714285714s;
+ }
+ 
+ .loader-square:nth-of-type(7) {
+  animation-delay: -10s;
+ }
